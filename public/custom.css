@@ -1,0 +1,4 @@
+.fc th { /* needs to be same precedence */
+    padding: 1em;
+    vertical-align: middle;
+  }
