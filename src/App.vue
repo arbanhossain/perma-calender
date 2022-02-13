@@ -198,8 +198,28 @@ export default {
     handleEventAdd(arg) {
       console.log(arg);
     },
-    handleEventChange(arg) {
-      let event = this.events.filter((event) => event.id === arg.event.id)[0];
+    async handleEventChange(arg) {
+      let argEvent = arg.event;
+      let FbaseEvent = this.events.filter((event) => event.id === argEvent.id)[0];
+
+      FbaseEvent.title = argEvent.title;
+      FbaseEvent.start = this.createDateString(new Date(Date.parse(argEvent.start)));
+      if(argEvent.end){
+        FbaseEvent.end = this.createDateString(new Date(Date.parse(argEvent.end)));
+      }
+      FbaseEvent.allDay = argEvent.allDay;
+      if(argEvent.desc){
+        FbaseEvent.desc = argEvent.desc;
+      }
+      if(argEvent.color){
+        FbaseEvent.color = argEvent.color;
+      }
+
+      let docRef = doc(db, "events", argEvent.id);
+
+      let obj = pick(FbaseEvent, "title", "desc", "start", "end", "allDay", "color", "calenderID");
+
+      await setDoc(docRef, obj, {merge: true});
     },
     handleEventRemove(arg) {
       console.log(arg);
