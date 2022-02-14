@@ -1,16 +1,43 @@
 <template>
   <FullCalendar ref="calendar" :options="calendarOptions" />
 
-  <button class="pure-button round-button blue-button" :disabled="validated" @click="showAddEventDialog = true"><b>+</b></button>
+  <button
+    class="pure-button round-button blue-button"
+    :disabled="validated"
+    @click="showAddEventDialog = true"
+  >
+    <b>+</b>
+  </button>
 
   <div>
-    <vue-final-modal v-model="showAddEventDialog" classes="modal-container" content-class="modal-content">
-      <AddEventForm :currDate="this.$globals.currentDateStr.substr(0,16)" @add-to-events="addNewEvent" @close-add-event="showAddEventDialog = false" />
+    <vue-final-modal
+      v-model="showAddEventDialog"
+      classes="modal-container"
+      content-class="modal-content"
+    >
+      <AddEventForm
+        :currDate="this.$globals.currentDateStr.substr(0, 16)"
+        @add-to-events="addNewEvent"
+        @close-add-event="showAddEventDialog = false"
+      />
       <!-- <span class="modal__title">Hello, vue-final-modal</span> -->
     </vue-final-modal>
     <!-- <button @click="showModal = true">Open Modal</button> -->
   </div>
 
+  <div>
+    <vue-final-modal
+      v-model="showEventDetailsDialog"
+      classes="modal-container"
+      content-class="modal-content"
+    >
+      <EventDetailsForm
+        :event="currEvent"
+        @update-event="handleEventChange"
+        @close-event-details="showEventDetailsDialog = false"
+      />
+    </vue-final-modal>
+  </div>
 </template>
 
 <script>
@@ -32,8 +59,8 @@ import {
 } from "firebase/firestore";
 import { firebaseConfig } from "./config.js";
 
-
-import AddEventForm from './components/AddEventForm.vue';
+import AddEventForm from "./components/AddEventForm.vue";
+import EventDetailsForm from "./components/EventDetailsForm.vue";
 
 const fbase = initializeApp(firebaseConfig);
 const db = getFirestore();
@@ -47,6 +74,7 @@ export default {
   components: {
     FullCalendar,
     AddEventForm,
+    EventDetailsForm,
   },
   //emits: ['close-add-event'],
   data() {
@@ -71,8 +99,10 @@ export default {
       },
       validated: true,
       showAddEventDialog: false,
+      showEventDetailsDialog: false,
       events: [],
       showModal: false,
+      currEvent: {},
     };
   },
   created() {
@@ -157,7 +187,7 @@ export default {
     // handleDateSelect(arg) {
     //   console.log(arg);
     // },
-    addNewEvent(data){
+    addNewEvent(data) {
       //console.log(data);
       let id = uuidv4();
       let event = {
@@ -168,9 +198,11 @@ export default {
         allDay: data.allDay,
         color: data.color,
         end: data.end,
-        calenderID: "asdfgh"
+        calenderID: "asdfgh",
       };
       console.log(event);
+
+      // not mutating the original array
       let events = this.events;
       events.push(event);
       this.events = events;
@@ -180,8 +212,18 @@ export default {
       this.updateEventsArray();
     },
     async addEventToFbase(data) {
+      // separate the id and data
       let id = data.id;
-      let obj = pick(data, "title", "desc", "start", "end", "allDay", "color", "calenderID");
+      let obj = pick(
+        data,
+        "title",
+        "desc",
+        "start",
+        "end",
+        "allDay",
+        "color",
+        "calenderID"
+      );
       let docRef = doc(db, "events", id);
       await setDoc(docRef, obj);
     },
@@ -190,7 +232,15 @@ export default {
     },
     handleEventClick(arg) {
       let event = this.events.filter((event) => event.id === arg.event.id)[0];
-      console.log(Object.keys(event), Object.keys(arg.event._def));
+      //deep copy so that dumb user cannot make empty title or desc as im using v-model
+      let copiedEvent = JSON.parse(JSON.stringify(event));
+      copiedEvent.start = copiedEvent.start.substring(0, 16);
+      if (copiedEvent.allDay === false) {
+        copiedEvent.end = copiedEvent.end.substring(0, 16);
+      }
+
+      this.currEvent = copiedEvent;
+      this.showEventDetailsDialog = true;
     },
     handleEvents(arg) {
       this.currentEvents = arg;
@@ -199,27 +249,45 @@ export default {
       console.log(arg);
     },
     async handleEventChange(arg) {
-      let argEvent = arg.event;
-      let FbaseEvent = this.events.filter((event) => event.id === argEvent.id)[0];
+      let argEvent = arg.event ? arg.event : arg;
+      let FbaseEvent = this.events.filter(
+        (event) => event.id === argEvent.id
+      )[0];
 
       FbaseEvent.title = argEvent.title;
-      FbaseEvent.start = this.createDateString(new Date(Date.parse(argEvent.start)));
-      if(argEvent.end){
-        FbaseEvent.end = this.createDateString(new Date(Date.parse(argEvent.end)));
-      }
       FbaseEvent.allDay = argEvent.allDay;
-      if(argEvent.desc){
+      FbaseEvent.start = this.createDateString(
+        new Date(Date.parse(argEvent.start))
+      );
+      // add conditionals so i can use the same function for both forms
+      if (argEvent.allDay === false) {
+        FbaseEvent.end = this.createDateString(
+          new Date(Date.parse(argEvent.end))
+        );
+      } else {
+        FbaseEvent.end = "";
+      }
+      if (argEvent.desc) {
         FbaseEvent.desc = argEvent.desc;
       }
-      if(argEvent.color){
+      if (argEvent.color) {
         FbaseEvent.color = argEvent.color;
       }
 
       let docRef = doc(db, "events", argEvent.id);
 
-      let obj = pick(FbaseEvent, "title", "desc", "start", "end", "allDay", "color", "calenderID");
+      let obj = pick(
+        FbaseEvent,
+        "title",
+        "desc",
+        "start",
+        "end",
+        "allDay",
+        "color",
+        "calenderID"
+      );
 
-      await setDoc(docRef, obj, {merge: true});
+      await setDoc(docRef, obj, { merge: true });
     },
     handleEventRemove(arg) {
       console.log(arg);
@@ -240,11 +308,10 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
-
 </style>
 
 <style scoped>
-button{
+button {
   margin: 1em;
 }
 .round-button {
