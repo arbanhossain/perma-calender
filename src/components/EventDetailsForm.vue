@@ -49,7 +49,7 @@ export default {
     handleSubmit() {
       // console.log(this.event);
       if(!this.validateFormData(this.event)){
-        window.FlashMessage.error("Validation Error");
+        FlashMessage.error("Validation Error");
         return;
       }
       if(this.event.allDay === true) this.event.end = "";

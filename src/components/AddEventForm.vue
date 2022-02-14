@@ -55,7 +55,7 @@ export default {
   methods: {
     handleEventSubmit() {
       if (!this.validateFormData()) {
-        window.FlashMessage.error("Validation Error");
+        FlashMessage.error("Validation Error");
         return;
       }
       // console.log(this.eventFormData);
