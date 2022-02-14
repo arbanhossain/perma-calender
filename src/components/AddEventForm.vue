@@ -1,4 +1,7 @@
 <template>
+  <!--
+    Form for adding new events
+  -->
   <!-- <div class="modal__title">
     <p>Add Event</p>
   </div> -->
@@ -18,33 +21,10 @@
         name="end"
         v-if="!this.eventFormData.allDay"
       />
-      <!-- <FormKit
-        type="text"
-        name="start"
-        label="Start"
-        help="Date"
-        validation="required"
-      />
-      <FormKit
-        type="select"
-        name="hours"
-        help="hours"
-        :options="[
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-          20, 21, 22, 23,
-        ]"
-      />
-      <FormKit
-        type="select"
-        name="minutes"
-        help="minutes"
-        :options="[0, 15, 30, 45]"
-      /> -->
-      <!-- <FormKit type=datetime-local name=end label=End help=Ends v-if="!this.eventFormData.allDay" /> -->
       <FormKit
         type="select"
         name="color"
-        :options="['pink', 'lime', 'cyan', 'gray']"
+        :options="this.$globals.colors"
       />
       <button type="submit" class="pure-button blue-button">
         Submit Event
@@ -71,16 +51,17 @@ export default {
     // console.log('mounted');
   },
   emits: ["close-add-event", "add-to-events"],
-  props:['currDate'],
+  props: ["currDate"],
   methods: {
     handleEventSubmit() {
       if (!this.validateFormData()) {
-        window.FlashMessage.error("Validation Error")
+        window.FlashMessage.error("Validation Error");
         return;
       }
       // console.log(this.eventFormData);
       //   console.log(this.currentDate);
-      if(this.eventFormData.allDay == true) this.eventFormData.end = "";
+      // no need for 'end' if allDay is checked
+      if (this.eventFormData.allDay == true) this.eventFormData.end = "";
       this.$emit("add-to-events", this.eventFormData);
       this.clearFormData();
       this.$emit("close-add-event");
@@ -103,7 +84,10 @@ export default {
         return false;
       }
       if (this.eventFormData.allDay === false) {
-        if (this.eventFormData.end === undefined || this.eventFormData.end === "") {
+        if (
+          this.eventFormData.end === undefined ||
+          this.eventFormData.end === ""
+        ) {
           return false;
         }
       }
@@ -126,9 +110,6 @@ button {
 
 .blue-button {
   background: rgb(132, 230, 255);
-}
-
-FormKit[type="submit"] {
 }
 </style>
 
