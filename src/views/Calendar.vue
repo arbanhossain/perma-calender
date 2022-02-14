@@ -120,7 +120,7 @@ export default {
         this.createNewCalendar();
       } catch (error) {
         console.log(error);
-        window.location.replace("/error?id=2")
+        window.location.replace("/error?id=2");
       }
     } else {
       this.fetchAndSetEvents();
@@ -154,8 +154,13 @@ export default {
       );
     },
     async createNewCalendar() {
-      let calID = uuidv4();
-      let eventID = uuidv4();
+      let eventID='', calID='';
+      do {
+        calID = uuidv4();
+      } while (this.checkIfCalendarExists(calID) === true);
+      do {
+        eventID = uuidv4();
+      } while (this.checkIfEventExists(eventID) === true);
       let event = {
         title: "Sample Event",
         desc: "Sample Description",
@@ -167,6 +172,28 @@ export default {
       };
       await setDoc(doc(db, "events", eventID), event);
       window.location.replace("/calendar/" + calID);
+    },
+    async checkIfCalendarExists(id) {
+      let reference = collection(db, "events");
+      let q = query(reference, where("calendarID", "==", id));
+      let snapshot = await getDocs(q);
+      if (snapshot.docs.length === 0) {
+        return false;
+      } else {
+        console.log("calendar exists!!")
+        return true;
+      }
+    },
+    async checkIfEventExists(id) {
+      let reference = doc(db, "events", id);
+      let snapshot = await getDoc(reference);
+
+      if (snapshot.exists()) {
+        console.log("event exists!!")
+        return true;
+      } else {
+        return false;
+      }
     },
     addEvent(doc) {
       let id = doc.id;
