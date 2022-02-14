@@ -8,11 +8,12 @@ import '@formkit/themes/genesis/theme.css'
 
 const app = createApp(App)
 
-app.use(vfmPlugin)
-app.use(plugin, defaultConfig)
+app.use(vfmPlugin) // modal
+app.use(plugin, defaultConfig) //formkit
 
 app.config.globalProperties.$globals = {
     currentDateStr:'',
+    colors: ['pink', 'cyan', 'lime', 'gray', 'magenta', 'yellow']
 }
 
 app.mount('#app')
