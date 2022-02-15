@@ -4,11 +4,11 @@
     <FullCalendar ref="calendar" :options="calendarOptions" />
 
     <button
-      class="pure-button round-button blue-button"
+      class="pure-button round-button blue-button float"
       :disabled="validated"
       @click="showAddEventDialog = true"
     >
-      <b>+</b>
+      <i class="fa-solid fa-plus"></i>
     </button>
 
     <div>
@@ -351,15 +351,27 @@ export default {
 </script>
 
 <style scoped>
+.float{
+  z-index: 10;
+	position:fixed;
+	width:60px;
+	height:60px;
+	bottom:40px;
+	right:40px;
+  color: white;
+	border-radius:50px;
+	text-align:center;
+}
+
 button {
   margin: 1em;
 }
-.round-button {
+/* .round-button {
   text-align: center;
   border-radius: 1rem;
   margin: 20px;
   color: white;
-}
+} */
 
 .blue-button {
   background: rgb(132, 230, 255);

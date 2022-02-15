@@ -19,6 +19,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 [v-cloak] {
