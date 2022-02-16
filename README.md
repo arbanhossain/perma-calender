@@ -1,10 +1,5 @@
 # Perma Calendar
 
-## Planned:
-- UI and UX
-- View future events
-- Password protected event deletion
-
 ### Project setup
 ```
 npm install
