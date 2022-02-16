@@ -2,3 +2,9 @@
     padding: 1em;
     vertical-align: middle;
   }
+
+.fc .fc-button-primary{
+  color: var(--fc-button-text-color,rgb(0, 0, 0)) !important;
+  background-color: var(--fc-button-bg-color,rgb(184,248,255)) !important;
+  border: var(--fc-button-border-color, rgb(0,0,0)) !important;
+}

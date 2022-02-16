@@ -1,7 +1,7 @@
 <template>
   <div v-if="!visibility">Loading your calendar!!</div>
   <div v-if="visibility">
-    <FullCalendar ref="calendar" :options="calendarOptions" />
+    <FullCalendar id="calendar" ref="calendar" :options="calendarOptions" />
 
     <button
       class="pure-button round-button blue-button float"
@@ -349,6 +349,30 @@ export default {
   },
 };
 </script>
+
+<style>
+.fc .fc-button-primary{
+  background-color: rgb(132, 230, 255);
+  color: rgb(0,0,0);
+  border: none;
+}
+
+.fc .fc-button-primary:hover{
+  background-image: linear-gradient(to bottom, rgb(132, 230, 255), rgb(124, 215, 238));
+  color: rgb(0,0,0);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active{
+  background-color: rgb(124, 215, 238);
+  color: rgb(0,0,0);
+  border-color: rgba(0,0,0,0);
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: rgb(172, 238, 255);
+  color: rgb(0,0,0);
+}
+</style>
 
 <style scoped>
 .float{
