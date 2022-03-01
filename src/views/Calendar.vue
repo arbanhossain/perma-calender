@@ -88,10 +88,20 @@ export default {
     return {
       calendarOptions: {
         plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
+        // buttonIcons: {
+        //   copy: 'fa-copy',
+        // },
+        customButtons: {
+          copy: {
+            text: 'code',
+            hint: 'Copy Calendar Code',
+            click: this.copyCalendarLink,
+          }
+        },
         headerToolbar: {
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
+          right: "copy dayGridMonth,timeGridWeek,timeGridDay",
         },
         initialView: "dayGridMonth",
         editable: true,
@@ -346,6 +356,10 @@ export default {
     handleEventRemove(arg) {
       console.log(arg);
     },
+    copyCalendarLink(){
+      window.navigator.clipboard.writeText(this.calendarID);
+      FlashMessage.success('Copied calendar code!');
+    }
   },
 };
 </script>
