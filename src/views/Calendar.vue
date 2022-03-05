@@ -3,13 +3,29 @@
   <div v-if="visibility">
     <FullCalendar id="calendar" ref="calendar" :options="calendarOptions" />
 
-    <button
-      class="pure-button round-button blue-button float"
-      :disabled="validated"
-      @click="showAddEventDialog = true"
-    >
-      <i class="fa-solid fa-plus"></i>
-    </button>
+    <div class="float dropdown">
+      <button
+        class="pure-button round-button blue-button dropdown-content"
+        title="All Events"
+        @click="showAllEvents = true"
+      >
+        <i class="fa-solid fa-calendar-check"></i>
+      </button>
+      <button
+        class="pure-button round-button blue-button dropdown-content"
+        :disabled="validated"
+        @click="showAddEventDialog = true"
+        title="Add Event"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </button>
+      <button
+        class="pure-button round-button blue-button"
+        title="Actions"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
 
     <div>
       <vue-final-modal
@@ -40,6 +56,15 @@
         />
       </vue-final-modal>
     </div>
+    <div>
+      <vue-final-modal
+        v-model="showAllEvents"
+        classes="modal-container"
+        content-class="modal-content"
+      >
+        <AllEvents :events="events" />
+      </vue-final-modal>
+    </div>
   </div>
 </template>
 
@@ -66,6 +91,7 @@ import { firebaseConfig } from "@/config.js";
 
 import AddEventForm from "@/components/AddEventForm.vue";
 import EventDetailsForm from "@/components/EventDetailsForm.vue";
+import AllEvents from "@/components/AllEvents.vue";
 
 import "@/flash.min.js";
 
@@ -82,6 +108,7 @@ export default {
     FullCalendar,
     AddEventForm,
     EventDetailsForm,
+    AllEvents,
   },
   //emits: ['close-add-event'],
   data() {
@@ -93,10 +120,10 @@ export default {
         // },
         customButtons: {
           copy: {
-            text: 'code',
-            hint: 'Copy Calendar Code',
+            text: "code",
+            hint: "Copy Calendar Code",
             click: this.copyCalendarLink,
-          }
+          },
         },
         headerToolbar: {
           left: "prev,next today",
@@ -122,6 +149,7 @@ export default {
       currEvent: {},
       calendarID: this.$route.params.id,
       visibility: false,
+      showAllEvents: false,
     };
   },
   created() {
@@ -164,7 +192,8 @@ export default {
       );
     },
     async createNewCalendar() {
-      let eventID='', calID='';
+      let eventID = "",
+        calID = "";
       do {
         calID = uuidv4();
       } while (this.checkIfCalendarExists(calID) === true);
@@ -190,7 +219,7 @@ export default {
       if (snapshot.docs.length === 0) {
         return false;
       } else {
-        console.log("calendar exists!!")
+        console.log("calendar exists!!");
         return true;
       }
     },
@@ -199,7 +228,7 @@ export default {
       let snapshot = await getDoc(reference);
 
       if (snapshot.exists()) {
-        console.log("event exists!!")
+        console.log("event exists!!");
         return true;
       } else {
         return false;
@@ -356,63 +385,78 @@ export default {
     handleEventRemove(arg) {
       console.log(arg);
     },
-    copyCalendarLink(){
+    copyCalendarLink() {
       window.navigator.clipboard.writeText(this.calendarID);
-      FlashMessage.success('Copied calendar code!');
-    }
+      FlashMessage.success("Copied calendar code!");
+    },
   },
 };
 </script>
 
 <style>
-.fc .fc-button-primary{
+.fc .fc-button-primary {
   background-color: rgb(132, 230, 255);
-  color: rgb(0,0,0);
+  color: rgb(0, 0, 0);
   border: none;
 }
 
-.fc .fc-button-primary:hover{
-  background-image: linear-gradient(to bottom, rgb(132, 230, 255), rgb(124, 215, 238));
-  color: rgb(0,0,0);
+.fc .fc-button-primary:hover {
+  background-image: linear-gradient(
+    to bottom,
+    rgb(132, 230, 255),
+    rgb(124, 215, 238)
+  );
+  color: rgb(0, 0, 0);
 }
 
-.fc .fc-button-primary:not(:disabled).fc-button-active{
+.fc .fc-button-primary:not(:disabled).fc-button-active {
   background-color: rgb(124, 215, 238);
-  color: rgb(0,0,0);
-  border-color: rgba(0,0,0,0);
+  color: rgb(0, 0, 0);
+  border-color: rgba(0, 0, 0, 0);
 }
 
 .fc .fc-button-primary:disabled {
   background-color: rgb(172, 238, 255);
-  color: rgb(0,0,0);
+  color: rgb(0, 0, 0);
 }
 </style>
 
 <style scoped>
-.float{
+.float {
   z-index: 10;
-	position:fixed;
-	width:60px;
-	height:60px;
-	bottom:40px;
-	right:40px;
-  color: white;
-	border-radius:50px;
-	text-align:center;
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content {
+  display: none;
 }
 
 button {
-  margin: 1em;
+  margin: 0.5em;
 }
-/* .round-button {
-  text-align: center;
-  border-radius: 1rem;
-  margin: 20px;
-  color: white;
-} */
+
+.round-button:hover {
+  background: radial-gradient(
+    rgb(122, 215, 238),
+    rgb(132, 230, 255)
+  ) !important;
+  filter: drop-shadow(5px 5px 4px #d1d1d1);
+}
 
 .blue-button {
+  font-size: 1.3em;
+  color: white;
+  border-radius: 50px;
+  text-align: center;
   background: rgb(132, 230, 255);
+  width: 60px;
+  height: 60px;
 }
 </style>
 
